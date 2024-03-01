@@ -1,0 +1,441 @@
+<!-- @format -->
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Lesson 08: US Power Plants</title>
+        <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+        <!-- Is the is the latest version of Leaflet? -->
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet" />
+        <link href="css/styles.css" rel="stylesheet" />
+        <link href="css/custom.css" rel="stylesheet" />
+        <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" 
+            rel="stylesheet"
+            integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
+            crossorigin="anonymous"/>
+
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                background: rgb(42, 42, 42);
+                font-family: "Lato", sans-serif;
+                font-size: 100%;
+                font-weight: 300;
+                color: rgb(172, 172, 172);
+            }
+
+            header,
+            footer,
+            section {
+                padding: 6px 10%;
+                margin: 0 auto;
+                width: 80%;
+            }
+
+            h1 {
+                display: inline-block;
+                margin-right: 20px;
+                color: rgb(190, 190, 190);
+                font-size: 3.5em;
+                font-weight: 700;
+            }
+
+            h2 {
+                display: inline-block;
+                color: #94d8ff;
+                letter-spacing: 0.05em;
+                margin-top: 0px;
+                font-weight: 300;
+                text-transform: uppercase;
+                /*  Stack text shadows.  */
+                text-shadow: 0 0 30px #0098b3, 0 0 40px #00c2e4, 0 0 50px #00c2e4, 0 0 80px #00c2e4;
+            }
+
+            #map {
+                width: 80%;
+                height: 540px;
+                margin: 10px auto;
+            }
+
+            p {
+                font-size: 1em;
+                color: rgba(170, 170, 170);
+                font-weight: 300;
+                font-size: 1.2em;
+            }
+
+            .leaflet-control-layers{
+                font-family: "Lato", sans-serif;
+                width: 100px;
+                background: rgba(0, 0, 0, 0.5);
+                color: #fff;
+                font-size: 1em;
+                font-weight: 700;
+                line-height: 1.4em;
+            }
+
+            .leaflet-popup, .leaflet-tooltip {
+                font-family: "Lato", sans-serif;
+                font-size: 1em;
+                line-height: 1.4em;
+            }
+        </style>
+    </head>
+
+    <body>
+        <header>
+            <h1>US Power Plants</h1>
+            <h2>sources of electricity</h2>
+        </header>
+
+        <div id="map"></div>
+
+        <footer>
+            <p>Map authored by Nathan Alexander</p>
+            <p>
+                This map illustrates the location of nuclear, biomass, and wood burning power plants with the contental
+                U.S.. Each plant is represented by a circle with it's center point marking the location of the plant.
+                Circle size is proportionate to the energy output of the plant (per KW hour). The larger the circle, the
+                energy the plant produces.
+            </p>
+        </footer>
+        <!-- Is the is the latest version of Leaflet? -->
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <script src="data/power-plants.js"></script>
+        <script>
+            var map = L.map("map", {
+                center: [36, -94],
+                zoom: 4,
+            });
+
+            var tiles = L.tileLayer("http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png", {
+                attribution:
+                    '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+                subdomains: "abcd",
+                maxZoom: 19,
+            });
+
+            tiles.addTo(map);
+
+            //?????????????????? DO I NEED THE SORT METHOD ???????????????????????????
+            // plants.features.sort(function (a, b) {
+            //     return b.properties.fuel_source - a.properties.fuel_source;
+            // });
+            //----------------------------------------------------------------------
+
+            // ****************** commonStyles ***********************************
+            var commonStyles = {
+                color: "#1f78b4",
+                fillColor: "#1f78b4",
+                weight: 1,
+                stroke: 1,
+                fillOpacity: 0.8,
+            };
+            //----------------------------------------------------------------------
+
+            /*************************************************************************
+adding a VARIABLE NAME to the FeatureGroup
+************************************************************************/
+            plants.features.sort(function (a, b) {
+                return b.properties.capacity_mw - a.properties.capacity_mw;
+            });
+
+            // Load power plants
+
+            /******************************************************************
+Common Styles for marker circles
+*******************************************************************/
+            var commonStyles = {
+                weight: 1,
+                stroke: 1,
+                fillOpacity: 0.6,
+            };
+            //---------------------------------------------------------------------
+
+            /******************************************************************
+(REFACTORING) JS object to hold info we want to loop through
+*******************************************************************/
+            var layerInfo = {
+                // define the desired layers and their colors to place as JS object <<<<<<<<<<<<<
+                nuclearLayer: { source: "Nuclear", color: "#14FF1F" },
+                biomassLayer: { source: "Biomass", color: "#BF9E7F" },
+                woodLayer: { source: "Wood", coler: "#C04B33" },
+            };
+            var geoJsonLayers = {}; // we need this empty object to hold the variable names of each Leaflet GeoJson layer (i don't understand why)
+            //-----------------------------------------------------------------------------
+
+            //         /******************************************************************
+            //         Nuclear layer - DONT NEED THESE LAYERS ONCE THE REFACTORING IS DONE
+            //         *******************************************************************/
+            //         var nuclearLayer = L.geoJson(plants, {
+            //             pointToLayer: function (feature, latlng) {
+            //                 return L.circleMarker(latlng, commonStyles);
+            //             },
+            //             filter: function (feature) {
+            //                 if (feature.properties.fuel_source.Nuclear) {
+            //                     return feature;
+            //                 }
+            //             },
+            //             style: function (feature) {
+            //                 return {
+            //                     color: "#14FF1F",
+            //                     fillColor: "#14FF1F",
+            //                     radius: getRadius(feature.properties.fuel_source.Nuclear),
+            //                 };
+            //             },
+            //             onEachFeature: function (feature, layer) {
+            //                 layer.on("mouseover", function () {
+            //                     layer.setStyle({
+            //                         color: "blue",
+            //                         fillColor: "blue",
+            //                     });
+            //                 });
+            //                 layer.on("mouseout", function () {
+            //                     layer.setStyle({
+            //                         color: "#14FF1F",
+            //                         fillColor: "#14FF1F",
+            //                     });
+            //                 });
+            //                 layer.bindTooltip(feature.properties.plant_name, feature.properties.capacity_mw);
+            //                 // I couldn't make this work. I tried adding feature.properties.capacity and styling tags (among other things) <b></b> and <br> but they broke the page
+            //             },
+            //         }).addTo(map);
+            //         //--------------------------------------------------------------------------
+
+            //         /******************************************************************
+            //         Biomass layer
+            //         *******************************************************************/
+            //         var biomassLayer = L.geoJson(plants, {
+            //             pointToLayer: function (feature, latlng) {
+            //                 return L.circleMarker(latlng, commonStyles);
+            //             },
+            //             filter: function (feature) {
+            //                 if (feature.properties.fuel_source.Biomass) {
+            //                     return feature;
+            //                 }
+            //             },
+            //             style: function (feature) {
+            //                 return {
+            //                     color: "#BF9E7F",
+            //                     fillColor: "#BF9E7F",
+            //                     radius: getRadius(feature.properties.fuel_source.Biomass),
+            //                 };
+            //             },
+            //             onEachFeature: function (feature, layer) {
+            //                 layer.on("mouseover", function () {
+            //                     layer.setStyle({
+            //                         color: "blue",
+            //                         fillColor: "blue",
+            //                     });
+            //                 });
+            //                 layer.on("mouseout", function () {
+            //                     layer.setStyle({
+            //                         color: "#BF9E7F",
+            //                         fillColor: "#BF9E7F",
+            //                     });
+            //                 });
+            //                 layer.bindTooltip(layer.feature.properties.plant_name);
+            //             },
+            //         }).addTo(map);
+            //         //--------------------------------------------------------------------------------
+
+            //         /******************************************************************
+            // Wood layer
+            // *******************************************************************/
+            //         var woodLayer = L.geoJson(plants, {
+            //             pointToLayer: function (feature, latlng) {
+            //                 return L.circleMarker(latlng, commonStyles);
+            //             },
+            //             filter: function (feature) {
+            //                 if (feature.properties.fuel_source.Wood) {
+            //                     return feature;
+            //                 }
+            //             },
+            //             style: function (feature) {
+            //                 return {
+            //                     color: "#C04B33",
+            //                     fillColor: "#C04B33",
+            //                     radius: getRadius(feature.properties.fuel_source.Wood),
+            //                 };
+            //             },
+            //             onEachFeature: function (feature, layer) {
+            //                 layer.on("mouseover", function () {
+            //                     layer.setStyle({
+            //                         color: "blue",
+            //                         fillColor: "blue",
+            //                     });
+            //                 });
+            //                 layer.on("mouseout", function () {
+            //                     layer.setStyle({
+            //                         color: "#C04B33",
+            //                         fillColor: "#C04B33",
+            //                     });
+            //                 });
+            //                 layer.bindTooltip(layer.feature.properties.plant_name);
+            //             },
+            //         }).addTo(map);
+            //         //----- END of FeatureGroup -----------------------------------------------------------------
+
+            /******************************************************************************
+for(var name in object) looping structure - Refactoring the layers above
+******************************************************************************/
+            for (var layer in layerInfo) {
+                // Loop through the first object (which is the layerInfo object above)
+                geoJsonLayers[layer] = L.geoJson(plants, {
+                    // populate the second object with all features
+                    pointToLayer: function (feature, latlng) {
+                        // convert to a layer
+                        return L.circleMarker(latlng, commonStyles);
+                    },
+                    // exists in our first object
+                    filter: function (feature) {
+                        if (feature.properties.fuel_source[layerInfo[layer].source]) {
+                            return feature;
+                        }
+                    },
+                    // and match the style given in first object and with getRadius()
+                    style: function (feature) {
+                        return {
+                            color: layerInfo[layer].color,
+                            fillColor: layerInfo[layer].color,
+                            radius: getRadius(feature.properties.fuel_source[layerInfo[layer].source]),
+                        };
+                    },
+                }).addTo(map);
+            } // --- END OF LOOP -----------------------------------------------------------------------
+
+            //****** getRadius equation ****************************************************************
+            function getRadius(val) {
+                var radius = Math.sqrt(val / Math.PI);
+                return radius * 0.8;
+            } //--- END OF getRadius EQUATION ----------------------------------------------------------
+
+            /******************************************************************************
+Object with varible name sourcesLabels: holds all 3 of our fuel_source layers
+******************************************************************************/
+            var sourcesLabels = {
+                Nuclear: geoJsonLayers.nuclearLayer, // added the empty JS object to the layer name
+                Biomass: geoJsonLayers.biomassLayer, // added the empty JS object to the layer name
+                Wood: geoJsonLayers.woodLayer, // added the empty JS object to the layer name
+            };
+            //---END OF sourcesLabel OBJECT--------------------------------------------------
+
+            /******************************************************************************
+invoke L.control.layers and pass the sourcesLayer into it
+******************************************************************************/
+            L.control.layers(null, sourcesLabels, { collapsed: false }).addTo(map); // this isn't working and I don't know why
+            //---END OF sourcesLayer OBJECT--------------------------------------------------
+
+            //---END OF refactoring--------------------------------------------------
+
+            /*************************************************************************************
+CLICK EVENT
+**************************************************************************************/
+            // create a circle to represent the radius of the click
+            // but don't add it to the map yet
+            var radiusCircle = L.circle([0, 0], {
+                fillColor: 'white',
+                fillOpacity: .1,
+                radius: 500000,
+                stroke: false,
+                className: 'circleRadius',
+                interactive: false
+                })
+
+            map.on("click", function (e) {
+
+                // build variables to hold statistics
+                var stats = {};
+                var statsContent = '';
+                var total = 0;
+
+                // center circle location on current click point
+                radiusCircle.setLatLng(e.latlng)
+                    .addTo(map);
+
+                // Loop through object containing geojson layers
+                for (var gsLayer in layerInfo) {
+                    geoJsonLayers[gsLayer].eachLayer(function (layer) {
+                        console.log(`layerInfo[gsLayer]: ${layerInfo[gsLayer].source} \n*******\n`);
+                        console.log(`geoJsonLayers[gsLayer]: ${geoJsonLayers[gsLayer]} \n*******\n`);
+                        console.log(`gsLayer: ${gsLayer} \n*******\n`);
+                        console.log(`layer: ${layer} \n*******\n`);
+
+                        var distance = e.latlng.distanceTo(layer.getLatLng()) / 1000;
+
+                        if (distance > 500) {
+                            layer.setStyle({
+                                stroke: false,
+                                fill: false,
+                            });
+                        } else {
+                            layer.setStyle({
+                                stroke: true,
+                                fill: true,
+                            });
+
+                            // TOOLTIP
+                            var props = layer.feature.properties;
+
+                            var content = `<h3>${props.plant_name}</h3>`;
+
+                            var compare = 0;
+                            var dominate = "";
+                            for (var type in props.fuel_source) {
+                                content += `${type}: 
+                                        ${props.fuel_source[type].toLocaleString()} MW <br>`;
+                                if (props.fuel_source[type] > compare) {
+                                    compare = props.fuel_source[type];
+                                    dominate = type;
+                                }
+                            }
+
+                            // Get fancy with adding color to the popup
+                            content += `A <span style='color:${layerInfo[gsLayer].color}'>
+                                    ${layerInfo[gsLayer].source}</span> facility <b> 
+                                    ${distance.toLocaleString()} km</b><br> 
+                                    from the click point.<br>
+                                    Primarily a ${dominate} plant.`;
+
+                            layer.bindTooltip(content);
+                        
+                            // Add up total for each fuel source in radius
+                        for (var source in props.fuel_source) {
+                        total += props.fuel_source[source]
+                        // If the fuel type already exists in the stats object, 
+                        // increase the MW capacity,
+                        // otherwise add it.
+                        if (stats[source]) {
+                            stats[source] += props.fuel_source[source];
+                        } else {
+                            stats[source] = props.fuel_source[source];
+                        }
+                        }
+                        // Add the final total stat to the object
+                        stats["Total"] = total
+                    } // end else block, i.e., all plants inside search radius
+                    });
+
+                } // end for loop
+
+                // loop through stats object to show total by fuel in popup
+                for (var stat in stats) {
+                    if (stat != "Total") {
+                    statsContent += `<b>${stat}:</b> ${stats[stat].toLocaleString()} MW 
+                    (${((stats[stat] / stats.Total) * 100).toLocaleString()}%) <br>`
+                    }
+                }
+                // Add total to bottom of list and then bind it to the search circle
+                statsContent += `<b>TOTAL: </b> ${stats.Total.toLocaleString()} MW`
+                console.log(statsContent);
+                
+                radiusCircle.bindPopup(statsContent)
+                    .openPopup();
+            });
+            // ----- END of click event code block ---------------------------------------------------
+        </script>
+    </body>
+</html>
