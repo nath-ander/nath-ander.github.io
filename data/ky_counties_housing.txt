@@ -1,0 +1,18 @@
+Data obtained through the 2020 American Community Survey 5-year Estimates Profile for Selected Housing Characteristics (DP04).
+
+https://api.census.gov/data/2020/acs/acs5/profile/groups/DP04.html
+
+"NAME" - name of county
+"TOTAL" - total number of housing units, DP04_0001E 
+"OCCUPIED" - occupied housing units, DP04_0002E 
+"VACANT" - vacant housing units, DP04_0003E 
+"OWNER" - owner occupied housing units, DP04_0046E 
+"OWNED_MORT" - owner occupied units with a mortgage or loan, DP04_0091E 
+"OWNED_FREE" - occupied units owned "free and clear", DP04_0092E 
+"RENTER" - number of units occupied by a renter, DP04_0126E 
+"state" - State FIP id
+"county" - Kentucky County FIP id
+
+Census API query:
+https://api.census.gov/data/2020/acs/acs5/profile?get=NAME,DP04_0001E,DP04_0002E,DP04_0003E,DP04_0046E,DP04_0091E,DP04_0092E,DP04_0126E&for=county:*&in=state:21
+

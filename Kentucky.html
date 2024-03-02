@@ -1,0 +1,562 @@
+<!-- @format -->
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+		<title>title</title>
+		<!-- Bootstrap CSS -->
+		<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+			integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
+			crossorigin="anonymous" />
+		<!-- Leaflet CSS -->
+		<link
+			rel="stylesheet"
+			href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+			integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
+			crossorigin="" />
+		<!-- Fonts -->
+		<link
+			href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,800;1,800&display=swap"
+			rel="stylesheet" />
+		<style>
+			:root {
+				--background: #20282e;
+				--white: #f3f3f3;
+				--bs-body-color: #20282e;
+			}
+
+			.bg-primary, .btn-primary {
+				/* background-color: blue; */
+				--bs-btn-border-color: #6a0067;
+			}
+
+			.text-white {
+				color: var(--white) !important;
+			}
+
+			body {
+				background: #20282e;
+				font-family: "Open Sans", sans-serif;
+				font-weight: 400;
+				font-size: 100%;
+			}
+
+			footer {
+				position: fixed;
+				bottom: 0;
+				width: 100%;
+				height: 3rem;
+			}
+
+			h1 {
+				font-weight: 800;
+			}
+
+			p {
+				line-height: 1.7rem;
+			}
+
+			#map {
+				/* height is set in JS */
+				background: #2d2f31;
+			}
+
+			.legend {
+				font-size: 1rem;
+				border-radius: 5px;
+				max-width: 200px;
+				font-family: "Open Sans", sans-serif;
+				background: rgba(100, 100, 100, 0.9);
+				color: rgba(244, 244, 244, 0.8);
+				box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+			}
+
+			.legend h3 {
+				font-size: 1.1em;
+				font-weight: normal;
+				color: #ddd;
+				margin: 0 0 10px 0;
+			}
+
+			.legend span {
+				width: 20px;
+				height: 20px;
+				margin: 0 10px 4px 0;
+			}
+
+			.legend label {
+				font-size: 0.9rem;
+			}
+
+			.leaflet-bar a {
+				/* Override the default style for Leaflet's zoom  */
+				background: rgba(100, 100, 100, 0.9);
+				color: rgba(244, 244, 244, 0.8);
+			}
+
+			a:hover {
+				color: rgb(130, 131, 132);
+				text-decoration: none;
+			}
+
+			/* Custom Tool tips */
+			.leaflet-tooltip-own {
+				background: rgba(58, 58, 58, 0.955);
+				color: rgb(244, 244, 244);
+				border: none;
+				font-size: 1rem;
+				border-radius: 5px;
+				padding: 10px;
+				font-family: "Open Sans", sans-serif;
+				box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+			}
+
+			.leaflet-tooltip-left:before {
+				right: 0;
+				margin-right: -12px;
+				border-left-color: rgba(0, 0, 0, 0.4);
+			}
+
+			.leaflet-tooltip-right:before {
+				left: 0;
+				margin-left: -12px;
+				border-right-color: rgba(0, 0, 0, 0.4);
+			}
+
+			/* Small devices (landscape phones, 576px and up) */
+			@media (min-width: 576px) {
+			}
+
+			/* Medium devices (tablets, 768px and up) */
+			@media (min-width: 768px) {
+			}
+
+			/* Large devices (desktops, 992px and up) */
+			@media (min-width: 992px) {
+			}
+
+			/* Extra large devices (large desktops, 1200px and up) */
+			@media (min-width: 1200px) {
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="container-fluid">
+			<header class="row bg-dark text-white p-2">
+				<div class="col-8">
+					<h1>Home Ownership in Kentucky</h1>
+				</div>
+				<div class="col-4 align-self-center">
+					<p class="d-flex justify-content-end my-auto">
+						<!-- <a
+							class="btn btn-primary"
+							data-bs-toggle="offcanvas"
+							href="#offcanvasExample"
+							role="button"
+							aria-controls="offcanvasExample">
+							Map Info
+						</a> -->
+						<button type="button" class="btn btn-primary ms-1" data-bs-toggle="modal" data-bs-target="#exampleModal">
+							Map Info
+						</button>
+					</p>
+				</div>
+			</header>
+
+			<section class="row">
+				<div class="p-0">
+					<div id="map"></div>
+				</div>
+			</section>
+
+			<footer class="row bg-dark text-white p-2">
+				<p class="text-center"></p>
+			</footer>
+		</div>
+
+		<!-- <div
+			class="offcanvas offcanvas-start bg-dark text-white"
+			tabindex="-1"
+			id="offcanvasExample"
+			aria-labelledby="offcanvasExampleLabel">
+			<div class="offcanvas-header">
+				<h5 class="offcanvas-title" id="offcanvasExampleLabel">Map Info</h5>
+				<button
+					type="button"
+					class="btn-close"
+					data-bs-dismiss="offcanvas"
+					aria-label="Close"></button>
+			</div>
+			<div class="offcanvas-body">
+				<h3 class="py-2">subtitle</h3>
+				<p>
+					A fan brush is a fantastic piece of equipment. Use it. Make friends with it.
+					We're not trying to teach you a thing to copy. We're just here to teach you a
+					technique, then let you loose into the world. We'll put a happy little sky in
+					here.
+				</p>
+				<hr />
+				<ul class="list-unstyled">
+					<li>
+						authored by
+						<a href="#">Nate Alexander</a>
+					</li>
+					<li>Date of authored map</li>
+					<li>
+						data source:
+						<a href="https://www.census.gov/programs-surveys/decennial-census/decade/2020/2020-census-results.html">data source</a>
+					</li>
+				</ul>
+			</div>
+		</div> -->
+
+		<!-- Modal -->
+	<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+			<h1 class="modal-title fs-5" id="exampleModalLabel">Map Info</h1>
+			<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+			<p>This map shows home ownership information for all 120 counties in Kentucky. Search by the percentage of homes "owned with mortgage", homes "owned free and clear", or by home "rented". 
+			</p>
+			
+					<ul class="list-unstyled">
+						<li>
+							Authored by:
+							<a href="https://github.com/nath-ander">Nate Alexander</a>
+						</li>
+						<li>Date of authored map: <b>Jan, 2024</b></li>
+						<li>
+							data source:
+							<a href="https://www.census.gov/programs-surveys/decennial-census/decade/2020/2020-census-results.html">U.S. Census</a>
+						</li>
+					</ul>
+				
+			</div>
+			<div class="modal-footer">
+			<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+			<!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+			</div>
+		</div>
+		</div>
+	</div>
+		
+
+		<!-- legend is outside of container-fluid and will be dynamically added to map -->
+		<div class="legend d-flex flex-column px-3 py-2" id="legend"></div>
+
+		<!-- ui is outside of container-fluid and will be dynamically added to map -->
+		<div id="dropdown-ui" class="form-group me-3 mt-3">
+			<div class="form-group me-3 mt-3" id="dropdown-ui">
+			<select class="form-select bg-primary text-white">
+				<option value="OWNED_MORT" selected>Owned with Mortgage</option>
+				<option value="OWNED_FREE">Owned Free and Clear</option>
+				<option value="RENTER">Rented</option>
+			</select>
+		</div>
+
+		<!-- Add Bootstrap -->
+		<script
+			src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+			integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+			crossorigin="anonymous"></script>
+		<!-- then Leaflet JS -->
+		<script
+			src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+			integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM="
+			crossorigin=""></script>
+		<!-- then Simple Statistics -->
+		<script src="https://unpkg.com/simple-statistics@7.8.3/dist/simple-statistics.min.js"></script>
+		<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.7.2/proj4js.min.js"></script> -->
+		<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4leaflet/1.0.2/proj4leaflet.min.js"></script> -->
+		<script>
+			// Add footer date
+			setDate();
+
+			// var crs = new L.proj.CRS(
+			// 	"EPSG: 102008",
+			// 	'+proj=aea +lat_1-20 +lat_2=60
+			// 		+lat_0=40 +lon_0=-96 +x_0=0 +y_0=x_0
+			// 		+datum=NAD83 +units=m +no_defs',
+			// 	{
+			// 		resolution: [16384, 8192, 6000,4096, 2048, 1024, 512],
+			// 		origin: [0,0],
+			// 	}
+			// );
+			// set global variables for header, map container, and footer
+			const header = document.querySelector("header");
+			const mapContainer = document.querySelector("#map");
+			const footer = document.querySelector("footer");
+
+			// set map height to fill window
+			mapContainer.style.height =
+				window.innerHeight - header.offsetHeight - footer.offsetHeight + "px";
+
+			// initial Leaflet map options
+			const options = {
+				// crs: crs,
+				// center: [40, -98],
+				// zoom: 7,
+				scrollWheelZoom: false,
+				zoomSnap: 0.1,
+				zoomControl: false,
+				dragging: false,
+			};
+
+			// create Leaflet map and apply options
+			const map = L.map("map", options);
+
+			// request a basemap tile layer and add to the map
+			L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+				attribution:
+					'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+			}).addTo(map);
+
+			function setDate() {
+				const date = new Date();
+				const year = date.getFullYear();
+				const month = date.toLocaleString("default", { month: "long" });
+				const footerText = document.querySelector("footer p");
+				footerText.innerHTML = `${month}, ${year} | New Maps Plus`;
+			}
+
+			// set global variables for map layer,
+			// mapped attribute, and normalizing attribute
+			let attributeValue = "OWNED_MORT";
+			const normValue = "OCCUPIED";
+
+			// create object to hold legend titles:
+			const labels = {
+				OWNED_MORT: "Occupied housing units owned with mortgage",
+				OWNED_FREE: "Occupied housing units owned free and clear",
+				RENTER: "Occupied housing units rented",
+			};
+
+
+			// -------------------fetch data----------------------------------------------------------------
+			fetch("data/ky_counties_housing.geojson")
+				// after it is returned...
+				.then(function (response) {
+					if (response.ok) {
+						// the API call was successful
+						return response.json();
+					} else {
+						throw new Error('HTTP error! status: ${response.status}');
+					}
+					// Parse the JSON into a useable format, then return it
+				})
+				// The returned response is now data in a new then method
+				.then(function (data) {
+					// This is the JSON from our response
+					console.log(data); // also log the data after a "function" in fetch calls
+					drawMap(data);
+				})
+				// If there is an error, log it to the console
+				.catch(function (error) {
+					console.log(error);
+				});
+		
+
+			// ------------------drawMap function----------------
+			function drawMap(data) {
+				// convert GeoJSON data into a Leaflet object using Leaflet's L.geoJson() method - specifically the "counties" property in the data
+				const counties = L.geoJson(data, {
+					// style counties with initial default path options
+					style: function (feature) {
+						return {
+							color: "#20282e",
+							weight: 2,
+							fillOpacity: 1,
+							fillColor: "#1f78b4",
+						};
+					},
+					// add hover/touch functionality to each feature layer
+					onEachFeature: function (feature, layer) {
+						// when mousing over a layer
+						layer.on("mouseover", function () {
+							// change the stroke color and bring that element to the front
+							layer
+								.setStyle({
+									color: "#ff6e00",
+								})
+								.bringToFront();
+						});
+
+						// on mousing off layer
+						layer.on("mouseout", function () {
+							// reset the layer style to its original stroke color
+							layer.setStyle({
+								color: "#20282e",
+							});
+						});
+					},
+				}).addTo(map);
+
+				// fit the map's bounds and zoom level using the "counties" extent
+				map.fitBounds(counties.getBounds(), { // fits the map to the extents of
+					padding: [18, 18], // add padding around counties
+					animation: false, // disable animating the zoom
+				});
+
+				// calls:
+
+				updateMap(counties); // draw the map again
+			    addUi(counties);
+			}
+
+			// ----------------getClassBreaks Function------------------
+			function getClassBreaks(counties) {
+				const values = []; // empty array to data
+
+				// loop through all the counties
+				counties.eachLayer(function (layer) { // .eachLayer method goes over all of the data listed below
+					let value =
+						layer.feature.properties[attributeValue] / // defined in row 280
+						layer.feature.properties[normValue]; // defined in row 281
+						// CHECK DATA! if the data had "null" values or other bad data this would mess up
+					values.push(value); // push the normalized value for each layer into the Array
+				});
+
+				// determine similar clusters
+				const clusters = ss.ckmeans(values, 5); // this SimpleStatistics method is what sets the breaks 
+
+
+				// create an array of the lowest value within each cluster
+				const breaks = clusters.map(function (cluster) {
+					return [cluster[0], cluster.pop()];
+				});
+
+				//return array of arrays, e.g., [[0.24,0.25], [0.26, 0.37], etc]
+				return breaks; // this return statement is necessary for the function to run properly where it is called
+			}
+			// ----------------getColor function----------------
+			function getColor(d, breaks) {
+				// function accepts a single normalized data attribute value
+				// and uses a series of conditional statements to determine which
+				// which color value to return to return to the function caller
+
+				if (d <= breaks[0][1]) {
+					return "#f1eef6";
+				} else if (d <= breaks[1][1]) {
+					return "#bdc9e1";
+				} else if (d <= breaks[2][1]) {
+					return "#74a9cf";
+				} else if (d <= breaks[3][1]) {
+					return "#2b8cbe";
+				} else if (d <= breaks[4][1]) {
+					return "#045a8d";
+				}
+			}
+
+			// ------------------updateMap function----------------
+			function updateMap(counties) {
+				// you could log counties to console here to
+				// verify the Leaflet layers object is not accessible
+				// and scoped within this function
+	
+
+				// get the class breaks for the current data attribute
+				let breaks = getClassBreaks(counties); // LET not CONST 
+				// this is an array put together in the getClassBreaks function
+
+				// loop through each county layer to update the color and tooltip info
+				counties.eachLayer(function (layer) {
+					const props = layer.feature.properties;
+
+					// set the fill color of layer based on its normalized data value
+					layer.setStyle({
+						fillColor: getColor(props[attributeValue] / props[normValue], breaks),
+					});
+
+					// assemble string sequence of info for tooltip (end line break with + operator)
+					let tooltipInfo = `<b>${props["NAME"]} County</b><br>
+			 ${((props[attributeValue] / props[normValue]) * 100).toLocaleString()}%`;
+
+					// bind a tooltip to layer with county-specific information
+					layer.bindTooltip(tooltipInfo, {
+						// sticky property so tooltip follows the mouse
+						sticky: true,
+						className: "leaflet-tooltip-own",
+					});
+				});
+
+				// update the legend with the current data attribute information
+				addLegend(breaks);
+			}
+
+			// ------------------addLegend function----------------
+			function addLegend(breaks) { // accepts the parameter "breaks" to get the color and value of the breaks to go in the legend
+			
+				// create a new Leaflet control object, and position it top left
+				const legendControl = L.control({ position: "topleft" });
+
+				// when the legend is added to the map
+				legendControl.onAdd = function () {
+					// select a div element with an id attribute of legend
+					const legend = L.DomUtil.get("legend");
+
+					// disable scroll and click/touch on map when on legend
+					L.DomEvent.disableScrollPropagation(legend);
+					L.DomEvent.disableClickPropagation(legend);
+
+					// return the selection to the method
+					return legend;
+				};
+
+				// add the empty legend div to the map
+				legendControl.addTo(map);
+
+				// select the legend, add a title, begin an unordered list and assign to a variable
+				const leg = document.querySelector("#legend");
+				leg.innerHTML = "<h6 class='pb-2'>" + labels[attributeValue] + "</h6>";
+
+				// loop through the Array of classification break values
+				for (let i = 0; i <= breaks.length - 1; i++) {
+					const color = getColor(breaks[i][0], breaks);
+
+					leg.innerHTML += `<div class="d-flex flex-row justify-content-start">
+			<span style="background:${color}"></span>
+			                           <label>${(breaks[i][0] * 100).toFixed(1)} &mdash;
+			                           ${(breaks[i][1] * 100).toFixed(1)}%</label>
+			</div>`;
+				}
+			}
+
+
+			// ------------------addUi function----------------
+			function addUi(counties) {
+			     // create the slider control
+				const selectControl = L.control({ 
+					position: "topright",
+			});
+
+			     // when control is added
+			selectControl.onAdd = function (map) {
+			     // get the element with id attribute of ui-controls
+			return L.DomUtil.get("dropdown-ui");
+			};
+			     // add the control to the map
+			selectControl.addTo(map);
+
+			const leg = document.querySelector("#dropdown-ui select");
+			console.log(leg);
+
+			leg.addEventListener("change", function (e) { // e = change event
+				console.log(this); // to see what properties are changed on the event
+				console.log(e.target); // to see what properties are changed on the event
+
+				attributeValue = e.target.value; // the values in the global variable "labels" 
+
+				updateMap(counties); // this redraws the map to match the change
+			});
+		}
+		</script>
+	</body>
+</html>
