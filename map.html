@@ -1,0 +1,108 @@
+<!-- @format -->
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>LEED Certified Buildings in Lexington, Ky</title>
+		<!--Change this!! -->
+		<meta
+			name="viewport"
+			content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="https://api.mapbox.com/mapbox-gl-js/v2.11.0/mapbox-gl.js"></script>
+		<link
+			href="https://api.mapbox.com/mapbox-gl-js/v2.11.0/mapbox-gl.css"
+			rel="stylesheet" />
+		<style>
+			body {
+				margin: 0;
+				padding: 0;
+			}
+
+			.map-overlay {
+				position: absolute;
+				bottom: 0;
+				left: 0;
+				background: white;
+				margin-left: 20px;
+				font-family: Arial, Helvetica, sans-serif;
+				overflow: auto;
+				border-radius: 2px;
+			}
+
+			#legend {
+				width: auto;
+				height: auto;
+				margin-bottom: 40px;
+				padding: 10px;
+				line-height: normal;
+			}
+
+			.legend-key {
+				display: inline-block;
+				border-radius: 20%;
+				width: 10px;
+				height: 10px;
+				margin-right: 5px;
+			}
+
+			#map {
+				position: absolute;
+				top: 0;
+				bottom: 0;
+				width: 100%;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="map"></div>
+		<div
+			class="map-overlay"
+			id="legend"></div>
+
+		<script>
+			// Change this to your Access token ----------------------
+			mapboxgl.accessToken = 'pk.eyJ1IjoibmF0aGFuZGVyIiwiYSI6ImNsczFwdHFrajAzNzAybWw4YW5rcTg3aGUifQ.-BTDYHz11uonSeUb85Es9g';
+			// ------------------------------------------------
+
+			var map = new mapboxgl.Map({
+				container: 'map',
+
+				// Change this to your style --------------------
+				style: 'mapbox://styles/nathander/clbggcwcn002815o1ucb8o7s6',
+				// ----------------------------------------------
+
+				// Change to your location, please note this location information is for Gray's Arch, you will need to edit the center coordinates
+				zoom: 11,
+				center: [-84.501514, 38.0366],
+				// ----------------------------------------------
+			});
+
+			// wait for map to load before adjusting it
+			map.on('load', () => {});
+
+			//create arrays for the legend
+
+			const layers = ['Certified', 'Silver', 'Gold', 'Platinum'];
+
+			const colors = ['#026EAD', '#A6A6A6', '#F2C84B', '#DA8E4C'];
+
+			// create legend
+			const legend = document.getElementById('legend');
+
+			layers.forEach((layer, i) => {
+				const color = colors[i];
+				const item = document.createElement('div');
+				const key = document.createElement('span');
+				key.className = 'legend-key';
+				key.style.backgroundColor = color;
+
+				const value = document.createElement('span');
+				value.innerHTML = layers[i];
+				item.appendChild(key);
+				item.appendChild(value);
+				legend.appendChild(item);
+			});
+		</script>
+	</body>
+</html>
